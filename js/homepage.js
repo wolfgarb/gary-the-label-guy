@@ -4,8 +4,12 @@ var repoContainerEl = document.querySelector("#repos-container");
 var repoSearchTerm = document.querySelector("#repo-search-term");
 
 var displayRepos = function (repos, searchTerm) {
-  console.log(repos);
-  console.log(searchTerm);
+  // check if api returned any repos for user
+  if (repos.length === 0) {
+    repoContainerEl.textContent = "No repositories found.";
+    return;
+  }
+
   // clear old content
   repoContainerEl.textContent = "";
   repoSearchTerm.textContent = searchTerm;
@@ -24,6 +28,21 @@ var displayRepos = function (repos, searchTerm) {
 
     // append to container
     repoEl.appendChild(titleEl);
+
+    // create a status element
+    var statusEl = document.createElement("span");
+    statusEl.classList = "flex-row align-center";
+
+    // check if current repo has issues or not
+    if (repos[i].open_issues_count > 0) {
+      statusEl.innerHTML = 
+      "<i class='fas fa-times status-icon icon-danger'></i>" + repos[i].open_issues_count + " issue(s)";
+    } else {
+      statusEl.innerHTML = "<i class='fas fa-check-square status-icon icon-success'></i>";
+    }
+
+    // apend to container
+    repoEl.appendChild(statusEl);
 
     // append container to the dom
     repoContainerEl.appendChild(repoEl);
@@ -46,12 +65,21 @@ var formSubmitHandler = function (event) {
 var getUserRepos = function (user) {
   var apiUrl = "https://api.github.com/users/" + user + "/repos";
 
-  fetch(apiUrl).then(function (response) {
-    console.log(response);
+  fetch(apiUrl)
+  .then(function (response) {
+    // request successful
+    if (response.ok) {
     response.json().then(function (data) {
       displayRepos(data, user);
     });
+  } else {
+    alert("Error: GitHub user not found");
+  }
+})
+  .catch(function(error) {
+    // catch!
+    alert("Unable to connect to GitHub");
   });
-};
+}
 
 userFormEl.addEventListener("submit", formSubmitHandler);
