@@ -2,6 +2,8 @@
 var issuesContainer = document.querySelector("#issues-container");
 // this DOM references limit warning function
 var limitWarningEl = document.querySelector("#limit-warning");
+// dom to make repo name the header
+var repoNameEl = document.querySelector("#repo-name")
 
 var displayWarning = function(repo) {
   limitWarningEl.textContent = "To see more than 30 issues, visit ";
@@ -14,6 +16,19 @@ var displayWarning = function(repo) {
   // append all created elements to warning container
   limitWarningEl.appendChild(linkEl);
 };
+
+var getRepoName = function() {
+    var queryString = document.location.search;
+    var repoName = queryString.split("=")[1];
+    if (repoName) {
+        repoNameEl.textContent = repoName;
+        getRepoIssues(repoName);
+    } 
+    else {
+        document.location.replace("index.html")
+    }
+    
+}
 
 var getRepoIssues = function(repo) {
   var apiUrl = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
@@ -71,4 +86,4 @@ var displayIssues = function(issues) {
   }
 };
 
-getRepoIssues("facebook/react");
+getRepoName();
